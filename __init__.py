@@ -1,6 +1,7 @@
 import bpy
 import math
 from mathutils import Vector
+from .ui import MainPanel
 
 # Meta information for Blender Add-on
 
@@ -882,15 +883,15 @@ class AUTORIG_OT_ProcessCollection(
         scene = context.scene
 
         root_collection = (
-            scene.autorig_collection
+            scene.target_collection
         )
 
         plane = (
-            scene.autorig_projection_plane
+            scene.projection_plane
         )
 
         overlap_factor = (
-            scene.autorig_overlap_factor
+            scene.overlap_factor
         )
 
         # ----------------------------------------------------
@@ -1273,109 +1274,10 @@ class AUTORIG_OT_ProcessCollection(
         return {'FINISHED'}
 
 
-# ============================================================
-# 10. PANEL
-# ============================================================
-
-class AUTORIG_PT_MainPanel(
-    bpy.types.Panel
-):
-
-    bl_label = (
-        "2D Component Auto Rig"
-    )
-
-    bl_idname = (
-        "AUTORIG_PT_MainPanel"
-    )
-
-    bl_space_type = 'VIEW_3D'
-
-    bl_region_type = 'UI'
-
-    bl_category = '2D AutoRig'
-
-    def draw(
-        self,
-        context
-    ):
-
-        layout = self.layout
-
-        scene = context.scene
-
-        # ----------------------------------------------------
-        # Configuration
-        # ----------------------------------------------------
-
-        box = layout.box()
-
-        box.label(
-            text="Rig Configuration:",
-            icon='ARMATURE_DATA'
-        )
-
-        box.prop(
-            scene,
-            "autorig_collection",
-            text="Target"
-        )
-
-        box.prop(
-            scene,
-            "autorig_projection_plane",
-            text="Projection"
-        )
-
-        box.prop(
-            scene,
-            "autorig_overlap_factor",
-            text="Connection"
-        )
-
-        # ----------------------------------------------------
-        # Explanation
-        # ----------------------------------------------------
-
-        info = layout.box()
-
-        info.label(
-            text="1 Component = 1 Bone",
-            icon='INFO'
-        )
-
-        info.label(
-            text="Child Collection = Component"
-        )
-
-        info.label(
-            text="Direct Mesh = Component"
-        )
-
-        info.label(
-            text="Bones connect at overlap"
-        )
-
-        # ----------------------------------------------------
-        # Generate
-        # ----------------------------------------------------
-
-        layout.separator()
-
-        row = layout.row()
-
-        row.scale_y = 1.5
-
-        row.operator(
-            "autorig.process_collection",
-            text="Generate Component Rig",
-            icon='ARMATURE_DATA'
-        )
-
 # Register / Unregister
 classes = (
     AUTORIG_OT_ProcessCollection,
-    AUTORIG_PT_MainPanel,
+    MainPanel,
 )
 
 def register():
@@ -1388,7 +1290,7 @@ def register():
     
     # Register properties in bpy.types.Scene
     ## PointerProperty for Collection
-    bpy.types.Scene.collection = (
+    bpy.types.Scene.target_collection = (
         bpy.props.PointerProperty(  # PointerProperty is used to reference a Collection
             name="Target Collection",
             type=bpy.types.Collection,
@@ -1433,8 +1335,8 @@ def register():
 
 
 def unregister():
-    if hasattr(bpy.types.Scene, "collection"):
-        del bpy.types.Scene.collection
+    if hasattr(bpy.types.Scene, "target_collection"):
+        del bpy.types.Scene.target_collection
     if hasattr(bpy.types.Scene, "projection_plane"):
         del bpy.types.Scene.projection_plane
     if hasattr(bpy.types.Scene, "overlap_factor"):
