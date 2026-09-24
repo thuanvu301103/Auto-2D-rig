@@ -1,1 +1,3 @@
 # Auto-2D-rig
+
+2D Component Auto Rigger is a tool designed to automatically generate rigs for 2D characters in Blender. Simply select a Collection containing the character’s components, and the system will analyze their shapes and orientations, create one bone for each component, and connect them into a complete rig hierarchy. Each component is directly bound to its corresponding bone, making character animation faster, more intuitive, and flexible.

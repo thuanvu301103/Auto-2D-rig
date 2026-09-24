@@ -2,10 +2,7 @@ import bpy
 import math
 from mathutils import Vector
 
-
-# ============================================================
-# 1. METADATA
-# ============================================================
+# Meta information for Blender Add-on
 
 bl_info = {
     "name": "2D Component Auto Rigger",
@@ -1375,43 +1372,33 @@ class AUTORIG_PT_MainPanel(
             icon='ARMATURE_DATA'
         )
 
-
-# ============================================================
-# 11. REGISTER
-# ============================================================
-
+# Register / Unregister
 classes = (
     AUTORIG_OT_ProcessCollection,
     AUTORIG_PT_MainPanel,
 )
 
-
 def register():
-
+    # Register classes
     for cls in classes:
-
         try:
-            bpy.utils.register_class(
-                cls
-            )
+            bpy.utils.register_class(cls)
         except Exception:
             pass
-
-    bpy.types.Scene.autorig_collection = (
-        bpy.props.PointerProperty(
+    
+    # Register properties in bpy.types.Scene
+    ## PointerProperty for Collection
+    bpy.types.Scene.collection = (
+        bpy.props.PointerProperty(  # PointerProperty is used to reference a Collection
             name="Target Collection",
             type=bpy.types.Collection,
-            description=(
-                "Root collection containing "
-                "2D components"
-            )
+            description="Root collection containin 2D components"
         )
     )
-
-    bpy.types.Scene.autorig_projection_plane = (
+    ## EnumProperty for Projection Plane
+    bpy.types.Scene.projection_plane = (
         bpy.props.EnumProperty(
             name="Projection Plane",
-
             items=[
                 (
                     'XY',
@@ -1429,18 +1416,14 @@ def register():
                     "Use Y/Z coordinates"
                 ),
             ],
-
             default='XZ'
         )
     )
-
-    bpy.types.Scene.autorig_overlap_factor = (
+    ## FloatProperty for Overlap Factor
+    bpy.types.Scene.overlap_factor = (
         bpy.props.FloatProperty(
             name="Connection Overlap",
-            description=(
-                "Position of the connection "
-                "inside the overlap region"
-            ),
+            description="Position of the connection inside the overlap region",
             default=0.5,
             min=0.0,
             max=1.0,
@@ -1450,42 +1433,20 @@ def register():
 
 
 def unregister():
-
-    if hasattr(
-        bpy.types.Scene,
-        "autorig_collection"
-    ):
-
-        del bpy.types.Scene.autorig_collection
-
-    if hasattr(
-        bpy.types.Scene,
-        "autorig_projection_plane"
-    ):
-
-        del bpy.types.Scene.autorig_projection_plane
-
-    if hasattr(
-        bpy.types.Scene,
-        "autorig_overlap_factor"
-    ):
-
-        del bpy.types.Scene.autorig_overlap_factor
-
+    if hasattr(bpy.types.Scene, "collection"):
+        del bpy.types.Scene.collection
+    if hasattr(bpy.types.Scene, "projection_plane"):
+        del bpy.types.Scene.projection_plane
+    if hasattr(bpy.types.Scene, "overlap_factor"):
+        del bpy.types.Scene.overlap_factor
     for cls in reversed(classes):
-
         try:
-            bpy.utils.unregister_class(
-                cls
-            )
+            bpy.utils.unregister_class(cls)
         except Exception:
             pass
 
 
-# ============================================================
-# 12. RUN
-# ============================================================
-
+# Main entry point for script execution - Add-on
 if __name__ == "__main__":
 
     try:
