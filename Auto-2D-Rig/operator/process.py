@@ -1,5 +1,6 @@
 import bpy
 from .component_discovery import collect_components
+from ..type import Geometry
 import math
 from mathutils import Vector
 
@@ -388,20 +389,6 @@ class Process(bpy.types.Operator):
 # 2. BASIC GEOMETRY
 # ============================================================
 
-def project_point(point, plane):
-    """Project 3D point onto selected 2D plane."""
-
-    if plane == 'XY':
-        return Vector((point.x, point.y))
-
-    if plane == 'XZ':
-        return Vector((point.x, point.z))
-
-    if plane == 'YZ':
-        return Vector((point.y, point.z))
-
-    return Vector((point.x, point.z))
-
 
 def point_from_2d(point2d, plane, depth):
     """Convert 2D point back into 3D."""
@@ -416,24 +403,6 @@ def point_from_2d(point2d, plane, depth):
         return Vector((depth, point2d.x, point2d.y))
 
     return Vector((point2d.x, depth, point2d.y))
-
-
-def get_world_vertices(objects):
-    """Get all mesh vertices in world coordinates."""
-
-    points = []
-
-    for obj in objects:
-
-        matrix = obj.matrix_world
-
-        for vertex in obj.data.vertices:
-
-            points.append(
-                matrix @ vertex.co
-            )
-
-    return points
 
 
 # ============================================================
@@ -459,28 +428,16 @@ def calculate_component_geometry(
         bounding box
     """
 
-    points_3d = get_world_vertices(
-        objects
-    )
+    points_3d = get_world_vertices(objects)
 
     if not points_3d:
         return None
 
-    points_2d = [
-        project_point(p, plane)
-        for p in points_3d
-    ]
+    # Project point to 2D plan
+    points_2d = [project_point(p, plane) for p in points_3d]
 
-    # --------------------------------------------------------
-    # Center
-    # --------------------------------------------------------
-
-    center_2d = Vector((0.0, 0.0))
-
-    for p in points_2d:
-        center_2d += p
-
-    center_2d /= len(points_2d)
+    # All meshes' center
+    center_2d = calculate_2d_centroid(points_2d)
 
     # --------------------------------------------------------
     # Covariance matrix
@@ -631,6 +588,10 @@ def calculate_component_geometry(
 
     min_y = min(p.y for p in points_2d)
     max_y = max(p.y for p in points_2d)
+
+    geometry = Geometry(
+        centroid_2d=calculate_2d_centroid(points_2d)
+    )
 
     return {
         "center": point_from_2d(
