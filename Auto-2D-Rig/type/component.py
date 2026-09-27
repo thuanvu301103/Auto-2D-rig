@@ -15,3 +15,4 @@ class Component:
 
     def get_objects(self) -> List[bpy.types.Object]:
         return self.objects
+    
